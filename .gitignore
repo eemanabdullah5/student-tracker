@@ -1,0 +1,27 @@
+# --- Secrets: never commit real environment files ---
+.env
+.env.*
+!.env.example
+
+# --- Python (backend) ---
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Local SQLite database files ---
+*.db
+*.sqlite3
+
+# --- Node / React (frontend) ---
+node_modules/
+dist/
+coverage/
+
+# --- Editor / OS clutter ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
