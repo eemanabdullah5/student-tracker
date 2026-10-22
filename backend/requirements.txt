@@ -2,3 +2,5 @@
 fastapi==0.159.1
 # ASGI server that runs the app ([standard] adds auto-reload and faster HTTP parsing)
 uvicorn[standard]==0.54.0
+# Typed settings loaded from environment variables / .env
+pydantic-settings==2.16.1
