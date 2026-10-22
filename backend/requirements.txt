@@ -4,3 +4,5 @@ fastapi==0.159.1
 uvicorn[standard]==0.54.0
 # Typed settings loaded from environment variables / .env
 pydantic-settings==2.16.1
+# ORM / database toolkit (models, sessions, queries)
+sqlalchemy==2.1.6
