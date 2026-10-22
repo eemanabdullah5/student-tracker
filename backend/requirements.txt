@@ -1,0 +1,4 @@
+# Web framework
+fastapi==0.159.1
+# ASGI server that runs the app ([standard] adds auto-reload and faster HTTP parsing)
+uvicorn[standard]==0.54.0
