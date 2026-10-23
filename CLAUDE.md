@@ -85,6 +85,7 @@ backend/
   app/db/database.py       engine, foreign-key PRAGMA hook, SessionLocal, Base, get_db()
   app/models/__init__.py   imports every model (so create_all sees all tables)
   app/models/user.py       Role(StrEnum student/teacher) + User model
+  app/models/course.py     Course: title, teacher_id FK ON DELETE RESTRICT, UNIQUE(teacher_id, title)
 ```
 
 Current branch: **`feature/database-models`** (not yet pushed or merged).
@@ -93,6 +94,8 @@ User model decisions: `Role` is a `StrEnum` mapped with SQLAlchemy `Enum(..., va
 
 ## Next step (waiting for the user)
 
-**Step 1.2d, the `Course` model** (`app/models/course.py`): id, title, teacher_id FK→users. Open decision: what happens to a course if its teacher's user row is deleted (`ON DELETE RESTRICT`, `CASCADE` or `SET NULL`). Present the options first.
+Course decisions: `ON DELETE RESTRICT` (never cascade-delete grades) and `UNIQUE(teacher_id, title)`. The FK can't check that the owner is a teacher; the service layer must (Phase 2). No `relationship()`s added yet; add them when a query needs them.
 
-After that: the Enrollment, Assignment and Submission models (one per step), `create_all` at startup, then a PR for `feature/database-models`.
+**Step 1.2e, the `Enrollment` model** (`app/models/enrollment.py`): id, student_id FK, course_id FK, enrolled_at, UNIQUE(student_id, course_id). Open decisions to present first: the ON DELETE behaviour of each FK, and whether to keep a surrogate `id` or use the composite primary key (student_id, course_id).
+
+After that: the Assignment and Submission models (one per step), `create_all` at startup, then a PR for `feature/database-models`.
