@@ -83,14 +83,16 @@ backend/
   app/core/config.py       Settings + `settings` singleton
   app/core/logging.py      redact(), RedactingFormatter, setup_logging()
   app/db/database.py       engine, foreign-key PRAGMA hook, SessionLocal, Base, get_db()
+  app/models/__init__.py   imports every model (so create_all sees all tables)
+  app/models/user.py       Role(StrEnum student/teacher) + User model
 ```
 
 Current branch: **`feature/database-models`** (not yet pushed or merged).
 
+User model decisions: `Role` is a `StrEnum` mapped with SQLAlchemy `Enum(..., values_callable, create_constraint=True, validate_strings=True)`, which generates `CHECK (role IN ('student','teacher'))` and defaults to STUDENT. Email is lowercased in the **service layer** (Step 1.4, not done yet), with `UNIQUE` on the column. Verified in an in-memory DB: duplicate email and `role='admin'` are both rejected by SQLite.
+
 ## Next step (waiting for the user)
 
-**Step 1.2c, the `User` model** (`app/models/user.py`). Two decisions are still open; Claude recommended **A** for both:
-1. Role storage: **A)** a Python `Enum` (`Role.STUDENT`/`Role.TEACHER`) with SQLAlchemy `Enum`, which adds the CHECK automatically, or B) a `String` with a hand-written `CheckConstraint`
-2. Email case: **A)** lowercase in the backend on register and login, plus UNIQUE, or B) `COLLATE NOCASE`
+**Step 1.2d, the `Course` model** (`app/models/course.py`): id, title, teacher_id FK→users. Open decision: what happens to a course if its teacher's user row is deleted (`ON DELETE RESTRICT`, `CASCADE` or `SET NULL`). Present the options first.
 
-After that: the Course, Enrollment, Assignment and Submission models (one per step), `create_all` at startup, then a PR for `feature/database-models`.
+After that: the Enrollment, Assignment and Submission models (one per step), `create_all` at startup, then a PR for `feature/database-models`.
