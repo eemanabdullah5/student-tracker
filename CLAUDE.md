@@ -88,6 +88,9 @@ backend/
   app/models/course.py     Course: title, teacher_id FK ON DELETE RESTRICT, UNIQUE(teacher_id, title)
   app/models/enrollment.py Enrollment: own id, student_id/course_id FKs ON DELETE CASCADE,
                            enrolled_at, UNIQUE(student_id, course_id)
+  app/models/assignment.py Assignment: course_id FK RESTRICT, title, description (Text, default ""),
+                           due_at (required, UTC), max_score Float CHECK>0, weight Float default 1 CHECK>0,
+                           UNIQUE(course_id, title)
 ```
 
 Current branch: **`feature/database-models`** (not yet pushed or merged).
@@ -100,6 +103,8 @@ Course decisions: `ON DELETE RESTRICT` (never cascade-delete grades) and `UNIQUE
 
 **ON DELETE rule used throughout:** link rows CASCADE; rows holding data (courses, assignments, submissions) RESTRICT. The service layer must check that `student_id` is a student.
 
-**Step 1.2f, the `Assignment` model** (`app/models/assignment.py`): id, course_id FK, title, description, due_at, max_score CHECK > 0, weight CHECK > 0. Open decisions to present first: the number types for max_score and weight, whether due_at is required, and the ON DELETE behaviour of course_id.
+Assignment decisions: scores are `Float` (half marks allowed; round results to 2 decimal places). Weights are **relative** (any positive number; weighted score = Σ(wᵢ·scoreᵢ/maxᵢ)/Σwᵢ; show as % for display only). `due_at` is required. Whether late submissions are accepted is still to be decided (Phase 2).
 
-After that: the Submission model, `create_all` at startup, then a PR for `feature/database-models`.
+**Step 1.2g, the `Submission` model** (`app/models/submission.py`): assignment_id FK, student_id FK, content, submitted_at, score (NULL = ungraded), feedback, graded_at, graded_by FK, UNIQUE(assignment_id, student_id). Open decisions to present first: content type (text or link vs file upload), a CHECK keeping score/graded_at/graded_by consistent, and the ON DELETE behaviour of graded_by.
+
+After that: the Submission model is the last one, `create_all` at startup, then a PR for `feature/database-models`.
