@@ -86,6 +86,8 @@ backend/
   app/models/__init__.py   imports every model (so create_all sees all tables)
   app/models/user.py       Role(StrEnum student/teacher) + User model
   app/models/course.py     Course: title, teacher_id FK ON DELETE RESTRICT, UNIQUE(teacher_id, title)
+  app/models/enrollment.py Enrollment: own id, student_id/course_id FKs ON DELETE CASCADE,
+                           enrolled_at, UNIQUE(student_id, course_id)
 ```
 
 Current branch: **`feature/database-models`** (not yet pushed or merged).
@@ -96,6 +98,8 @@ User model decisions: `Role` is a `StrEnum` mapped with SQLAlchemy `Enum(..., va
 
 Course decisions: `ON DELETE RESTRICT` (never cascade-delete grades) and `UNIQUE(teacher_id, title)`. The FK can't check that the owner is a teacher; the service layer must (Phase 2). No `relationship()`s added yet; add them when a query needs them.
 
-**Step 1.2e, the `Enrollment` model** (`app/models/enrollment.py`): id, student_id FK, course_id FK, enrolled_at, UNIQUE(student_id, course_id). Open decisions to present first: the ON DELETE behaviour of each FK, and whether to keep a surrogate `id` or use the composite primary key (student_id, course_id).
+**ON DELETE rule used throughout:** link rows CASCADE; rows holding data (courses, assignments, submissions) RESTRICT. The service layer must check that `student_id` is a student.
 
-After that: the Assignment and Submission models (one per step), `create_all` at startup, then a PR for `feature/database-models`.
+**Step 1.2f, the `Assignment` model** (`app/models/assignment.py`): id, course_id FK, title, description, due_at, max_score CHECK > 0, weight CHECK > 0. Open decisions to present first: the number types for max_score and weight, whether due_at is required, and the ON DELETE behaviour of course_id.
+
+After that: the Submission model, `create_all` at startup, then a PR for `feature/database-models`.
